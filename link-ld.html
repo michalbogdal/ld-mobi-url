@@ -11,6 +11,10 @@ function getExtractedDate(referenceDate){
 	return {year, month, day}
 }
 
+function setMobiUrl(mobiFileUrl){
+	$("a[name='mobi']").prop('href', mobiFileUrl)
+}
+
 function findAndSetMobiUrl(referenceDate, expectedFileName , isBackIfNotFound){
 	const {year, month} = getExtractedDate(referenceDate)	
 	files_url = base_file_url+"/"+year+"/"+month+"/";
@@ -27,7 +31,7 @@ function findAndSetMobiUrl(referenceDate, expectedFileName , isBackIfNotFound){
 			}	
 		
 		}else{
-			$("a[name='mobi']").prop('href', files_url + expectedFileName)	
+			setMobiUrl(files_url + expectedFileName)	
 		}	
 	  },
 	  error: function(data){
