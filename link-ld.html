@@ -1,0 +1,62 @@
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script>
+base_file_url = "http://www.onjest.pl/slowo/wp-content/uploads"
+
+function getExtractedDate(referenceDate){
+	const year = referenceDate.getFullYear();
+	const month = ("0" + (referenceDate.getMonth()+1)).slice(-2);
+	const day = ("0" + (referenceDate.getDate())).slice(-2);
+	return {year, month, day}
+}
+
+function findAndSetMobiUrl(referenceDate, expectedFileName , isBackIfNotFound){
+	const {year, month} = getExtractedDate(referenceDate)	
+	files_url = base_file_url+"/"+year+"/"+month+"/";
+	console.log("files url:" + files_url)	
+	$.ajax({
+	  url: files_url,
+	  success: function(data){
+		var links = $(data).find(`a:contains(${expectedFileName})`)
+		if( !links.length){
+			if(isBackIfNotFound){
+				var backDate = new Date();
+				backDate.setMonth(referenceDate.getMonth()-1);
+				findAndSetMobiUrl(backDate, expectedFileName, false);
+			}	
+		
+		}else{
+			$("a[name='mobi']").prop('href', files_url + expectedFileName)	
+		}	
+	  },
+	  error: function(data){
+		if(isBackIfNotFound){
+				var backDate = new Date();
+				backDate.setMonth(referenceDate.getMonth()-1);
+				findAndSetMobiUrl(backDate, expectedFileName, false);
+			}	
+	  }
+	});
+}
+
+
+const today=new Date();
+const lastSunday=new Date().setDate(today.getDate() - today.getDay());
+const lastSundayDate = new Date(lastSunday);
+
+const {year, month, day} = getExtractedDate(lastSundayDate)	
+const shortYear = year.toString().slice(-2)
+const expectedFileName = `ebook${shortYear}${month}${day}.mobi`
+console.log("expected file name:" +expectedFileName)
+
+findAndSetMobiUrl(today, expectedFileName, true);
+
+</script>
+</head>
+
+pobieranie ostatniego pliku mobi:
+
+<br>
+<a name="mobi" href="file.mobi">lectio divina (mobi)</a>
+</html>
