@@ -18,22 +18,17 @@ function setMobiUrl(mobiFileUrl){
 
 function findAndSetMobiUrl(referenceDate, expectedFileName , isBackIfNotFound){
 	const {year, month} = getExtractedDate(referenceDate)	
-	files_url = base_file_url+"/"+year+"/"+month+"/";
-	console.log("files url:" + files_url)	
+	file_url = base_file_url+"/"+year+"/"+month+"/"+expectedFileName;
+	console.log("file url:" + file_url)	
 	$.ajax({
-	  url: files_url,
+	  url: file_url,
+	  xhrFields: {
+            responseType: 'blob'
+        },
+	  type: 'GET',
+	  processData: false,
 	  success: function(data){
-		var links = $(data).find(`a:contains(${expectedFileName})`)
-		if( !links.length){
-			if(isBackIfNotFound){
-				var backDate = new Date();
-				backDate.setMonth(referenceDate.getMonth()-1);
-				findAndSetMobiUrl(backDate, expectedFileName, false);
-			}	
-		
-		}else{
-			setMobiUrl(files_url + expectedFileName)	
-		}	
+		setMobiUrl(file_url)	
 	  },
 	  error: function(data){
 		if(isBackIfNotFound){
@@ -42,7 +37,7 @@ function findAndSetMobiUrl(referenceDate, expectedFileName , isBackIfNotFound){
 				findAndSetMobiUrl(backDate, expectedFileName, false);
 			}	
 	  }
-	});
+	})
 }
 
 
