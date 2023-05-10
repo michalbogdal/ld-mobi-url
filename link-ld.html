@@ -2,7 +2,7 @@
 <head>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script>
-base_file_url = "http://www.onjest.pl/slowo/wp-content/uploads"
+base_file_url = "https://www.onjest.pl/slowo/wp-content/uploads"
 
 function getExtractedDate(referenceDate){
 	const year = referenceDate.getFullYear();
@@ -11,32 +11,30 @@ function getExtractedDate(referenceDate){
 	return {year, month, day}
 }
 
-function setMobiUrl(mobiFileUrl){
-	console.log('found mobi: ' + mobiFileUrl)
-	$("a[name='mobi']").prop('href', mobiFileUrl)
+function setEpubUrl(epubFileUrl){
+	console.log('found epub: ' + epubFileUrl)
+	$("a[name='epub']").prop('href', epubFileUrl)
 }
 
-function findAndSetMobiUrl(referenceDate, expectedFileName , isBackIfNotFound){
+function findAndSetEpubUrl(referenceDate, expectedFileName , isBackIfNotFound){
 	const {year, month} = getExtractedDate(referenceDate)	
 	file_url = base_file_url+"/"+year+"/"+month+"/"+expectedFileName;
 	console.log("file url:" + file_url)	
+
 	$.ajax({
 	  url: file_url,
-	  xhrFields: {
-            responseType: 'blob'
-        },
-	  type: 'GET',
-	  processData: false,
-	  success: function(data){
-		setMobiUrl(file_url)	
-	  },
-	  error: function(data){
-		if(isBackIfNotFound){
+	  type: 'HEAD'
+	}).always( function(data){
+		console.log('status '+data.status)
+		if(data.status == 404) {
+			if(isBackIfNotFound) {
 				var backDate = new Date();
 				backDate.setMonth(referenceDate.getMonth()-1);
-				findAndSetMobiUrl(backDate, expectedFileName, false);
-			}	
-	  }
+				findAndSetEpubUrl(backDate, expectedFileName, false);
+			}
+		} else {
+			setEpubUrl(file_url)
+		}
 	})
 }
 
@@ -47,16 +45,16 @@ const lastSundayDate = new Date(lastSunday);
 
 const {year, month, day} = getExtractedDate(lastSundayDate)	
 const shortYear = year.toString().slice(-2)
-const expectedFileName = `ebook${shortYear}${month}${day}.mobi`
+const expectedFileName = `ebook${shortYear}${month}${day}.epub`
 console.log("expected file name:" +expectedFileName)
 
-findAndSetMobiUrl(today, expectedFileName, true);
+findAndSetEpubUrl(today, expectedFileName, true);
 
 </script>
 </head>
 
-pobieranie ostatniego pliku mobi:
+pobieranie ostatniego pliku epub:
 
 <br>
-<a name="mobi" href="file.mobi">lectio divina (mobi)</a>
+<a name="epub" href="file.epub">lectio divina (epub)</a>
 </html>
