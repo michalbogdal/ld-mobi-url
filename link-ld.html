@@ -25,12 +25,16 @@ function findAndSetEpubUrl(referenceDate, expectedFileName , isBackIfNotFound){
 	  url: file_url,
 	  type: 'HEAD'
 	}).always( function(data){
-		console.log('status '+data.status)
-		if(data.status == 404) {
-			if(isBackIfNotFound) {
-				var backDate = new Date();
-				backDate.setMonth(referenceDate.getMonth()-1);
-				findAndSetEpubUrl(backDate, expectedFileName, false);
+		if ( data != undefined ) {
+			console.log('status '+data.status)
+			if(data.status == 404) {
+				if(isBackIfNotFound) {
+					var backDate = new Date();
+					backDate.setMonth(referenceDate.getMonth()-1);
+					findAndSetEpubUrl(backDate, expectedFileName, false);
+				}
+			} else {
+				setEpubUrl(file_url)
 			}
 		} else {
 			setEpubUrl(file_url)
